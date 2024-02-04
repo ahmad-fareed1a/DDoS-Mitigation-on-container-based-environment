@@ -42,3 +42,23 @@ Check the IPs of both the container and the virtual machine to ensure they are o
 By following these steps, your environment should be properly configured for communicating with Docker containers within your virtual machine setup.
 
 Useful commands for Docker:
+To see the docker network: 
+```sudo docker network inspect mac-vlan```
+
+To see IP of a container: 
+
+```sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' web-container ```
+To see running containers / all containers:
+```sudo doccker ps```
+```sudo docker ps -a```
+To remove, start, stop, and restart a container: 'use either container ID or name'
+```sudo docker rm 90995300ab7e``` 
+```sudo docker stop web-container``` 
+```sudo docker start web-container```
+```sudo docker restart web-container```
+To get interactive shell of a container: 
+```sudo docker exec -it web-container /bin/bash```
+To restart a service inside a container 'based on ubuntu-image':
+```service apache2 restart```
+It will remove the interactive shell access, after that restart the container using below command:
+```sudo docker restart web-container```
