@@ -1,0 +1,50 @@
+# Use Ubuntu as base image
+
+FROM ubuntu:latest
+
+# Install Apache and other necessary packages
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y apache2 iptables curl git libapache2-mod-security2&& \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install SSL module
+
+RUN a2enmod ssl
+
+# Copy configuration files and scripts
+
+COPY apache2.conf /etc/apache2/apache2.conf
+COPY rate_limit.sh /usr/local/bin/rate_limit.sh
+COPY dynamic_blacklist.sh /usr/local/bin/dynamic_blacklist.sh
+COPY scrubber.sh /usr/local/bin/scrubber.sh
+COPY ./website/ /var/www/html/website
+COPY modsecurity.conf /etc/modsecurity/modsecurity.conf
+COPY security2.conf /etc/apache2/mods-enabled/security2.conf
+
+
+# Installing Modsecurity with Apache2 with OWASP CRS
+
+RUN mv usr/share/modsecurity-crs/ /usr/share/modsecurity-crs.bk
+    RUN git clone https://github.com/spiderlabs/owasp-modsecurity-crs.git /usr/share/modsecurity-crs
+    RUN cp /usr/share/modsecurity-crs/crs-setup.conf.example /usr/share/modsecurity-crs/crs-setup.conf
+    RUN chown -R www-data:www-data /var/www/html/website
+    RUN chmod -R 755 /var/www/html/website  
+
+# Make scripts executable
+
+RUN chmod +x /usr/local/bin/rate_limit.sh \
+    && chmod +x /usr/local/bin/dynamic_blacklist.sh \
+    && chmod +x /usr/local/bin/scrubber.sh \
+    && chmod +x /etc/modsecurity/modsecurity.conf \
+    && chmod +x /etc/apache2/mods-enabled/security2.conf \
+    && service apache2 restart
+
+# Expose ports 80 and 443
+
+EXPOSE 80
+EXPOSE 443
+
+# Start shell in the foreground
+CMD ["apache2ctl", "-D", "FOREGROUND"]
