@@ -20,22 +20,30 @@ Virtual Machine Network Configuration:
 
 ## Docker Network Setup
 The Docker network is configured using 'macvlan'.
+**Macvlan** in Docker is a networking driver that allows you to assign a MAC address to each Docker container's virtual network interface. This enables containers to appear as physical devices on the network, with their own MAC addresses and IP addresses.
 
 ```sudo docker network create -d macvlan --subnet 10.41.0.0/16 --gateway 10.41.0.1 -o parent=eth0 mac-vlan```
 
-Ensure to replace the IP addresses accordingly. To find the gateway, use the ```ip r``` command, and specify the appropriate parent network adapter.
+Ensure to replace the IP addresses accordingly. To find the gateway, use the 
+```ip r``` 
+command, and specify the appropriate parent network adapter.
+
 For enabling promiscuous mode on VMware, use the following command:
+
 ```sudo ip link set eth0 promisc on```
 
 ## Container Setup
 To build a container:
     Move all the files to a directory.
     Build the container using the following command:
-    ```sudo docker build -t web-container -f Dockerfile.web .```
-    To run the container on the macvlan network:
+    
+```sudo docker build -t web-container -f Dockerfile.web .```
+    
+To run the container on the macvlan network:
    
-    ``` sudo docker run --name web-container -it --network mac-vlan --ip 10.41.165.4 --name macweb –privileged web-container ```
-    Ensure to adjust the IP address and container name as needed.
+```sudo docker run --name web-container -it --network mac-vlan --ip 10.41.165.4 --name macweb –privileged web-container```
+    
+Ensure to adjust the IP address and container name as needed.
 
 ## Verify Network Settings
 Check the IPs of both the container and the virtual machine to ensure they are on the same network.
@@ -43,7 +51,9 @@ Check the IPs of both the container and the virtual machine to ensure they are o
 By following these steps, your environment should be properly configured for communicating with Docker containers within your virtual machine setup.
 
 Useful commands for Docker:
+
 To see the docker network: 
+
 ```sudo docker network inspect mac-vlan```
 
 To see IP of a container: 
@@ -51,9 +61,11 @@ To see IP of a container:
 ```sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' web-container ```
 
 To see running containers / all containers:
+
 ```sudo doccker ps```
 
 ```sudo docker ps -a```
+
 To remove, start, stop, and restart a container: 'use either container ID or name'
 
 ```sudo docker rm 90995300ab7e``` 
